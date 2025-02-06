@@ -1,0 +1,102 @@
+/* NCC-Themed Quiz UI */
+.quiz-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: #1e1e1e; /* Dark background */
+    color: #fff;
+    font-family: "Arial", sans-serif;
+}
+
+.quiz-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #ffd700; /* NCC Gold */
+}
+
+/* Topic Selection Grid */
+.topic-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.topic-card {
+    background: #2a2a2a;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    border: 2px solid #ffd700;
+    transition: transform 0.2s, background 0.3s;
+}
+
+.topic-card:hover {
+    background: #ffd700;
+    color: #000;
+    transform: scale(1.05);
+}
+
+/* Quiz Question Card */
+.quiz-card {
+    background: #2a2a2a;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+    border-left: 5px solid #ffd700;
+}
+
+.question-text {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+/* Answer Option Buttons */
+.options-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.option-button {
+    background: #444;
+    color: white;
+    border: none;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.option-button:hover {
+    background: #ffd700;
+    color: #000;
+}
+
+/* Score Display */
+.score-text {
+    font-size: 1.2rem;
+    margin-top: 10px;
+}
+
+/* Quiz Completion */
+.quiz-result {
+    background: #2a2a2a;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+    border-left: 5px solid #ffd700;
+}
+
+.loading-text {
+    font-size: 1.2rem;
+    color: #ccc;
+}

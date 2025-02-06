@@ -1,0 +1,72 @@
+/* NCC-Themed Leaderboard */
+.leaderboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: #1e1e1e; /* Dark military background */
+    color: #fff;
+    font-family: "Arial", sans-serif;
+}
+
+.leaderboard-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #ffd700; /* Gold for NCC theme */
+}
+
+.leaderboard-card {
+    background: #2a2a2a;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+    border-left: 5px solid #ffd700;
+    text-align: center;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard-table th, .leaderboard-table td {
+    padding: 10px;
+    border-bottom: 1px solid #444;
+    text-align: center;
+}
+
+.leaderboard-table th {
+    background: #ffd700;
+    color: #000;
+    font-weight: bold;
+}
+
+.leaderboard-table tr.gold {
+    background: #ffd700;
+    color: #000;
+    font-weight: bold;
+}
+
+.leaderboard-table tr.silver {
+    background: #c0c0c0;
+    color: #000;
+}
+
+.leaderboard-table tr.bronze {
+    background: #cd7f32;
+    color: #000;
+}
+
+.leaderboard-table tr:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.no-data {
+    padding: 20px;
+    font-size: 1.2rem;
+    color: #ccc;
+}

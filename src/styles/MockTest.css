@@ -1,0 +1,104 @@
+/* MockTest Page Styling */
+.mocktest-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    background: #1a1a1a;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+.mocktest-container h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    color: #ffd700;
+    text-shadow: 2px 2px 10px rgba(255, 215, 0, 0.8);
+}
+
+.question-card {
+    background: #222;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.4);
+    text-align: center;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 30px;
+}
+
+.question-card p {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.time-remaining {
+    font-size: 1rem;
+    color: #ffd700;
+    margin-bottom: 20px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+ul li {
+    margin-bottom: 15px;
+}
+
+ul li button {
+    background: #333;
+    color: #fff;
+    font-size: 1.1rem;
+    padding: 10px 15px;
+    width: 100%;
+    border: 2px solid #ffd700;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+ul li button:hover {
+    background: #ffd700;
+    color: #222;
+    border: 2px solid #ffcc00;
+}
+
+ul li button.selected {
+    background: #ffcc00;
+    color: #222;
+    border: 2px solid #ffd700;
+}
+
+button {
+    background: #ffd700;
+    color: #222;
+    font-weight: bold;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+}
+
+button:hover {
+    background: #ffcc00;
+}
+
+button:disabled {
+    background: #555;
+    cursor: not-allowed;
+}
+
+/* Navbar Style */
+.navbar {
+    margin-top: 40px;
+}
