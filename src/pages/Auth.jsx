@@ -102,7 +102,7 @@ const AuthPage = () => {
                 />
               </div>
               <div className="input-group">
-                <label>School:</label>
+                <label>School/University:</label>
                 <input
                   type="text"
                   value={school}
