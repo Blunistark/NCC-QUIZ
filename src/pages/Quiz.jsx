@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../utils/supabase";
 import Navbar from "../components/Navbar";
-import "../styles/Quiz.css"; // Import CSS
+import "../styles/Quiz.css";
 
 const Quiz = () => {
     const [topics, setTopics] = useState([]);
@@ -12,39 +12,37 @@ const Quiz = () => {
     const [quizCompleted, setQuizCompleted] = useState(false);
     const [topicProgress, setTopicProgress] = useState({});
     const [loading, setLoading] = useState(false);
+    const [userId, setUserId] = useState(null);
+    const [answerStatus, setAnswerStatus] = useState(null);
 
-    const userId = "user-id"; // Replace with actual user ID logic
+    useEffect(() => {
+        const fetchUser = async () => {
+            const { data, error } = await supabase.auth.getUser();
+            if (!error) setUserId(data?.user?.id);
+        };
+        fetchUser();
+    }, []);
 
-    // Fetch all unique topics
     useEffect(() => {
         const fetchTopics = async () => {
             setLoading(true);
-            const { data, error } = await supabase
-                .from("questions")
-                .select("topic");
+            const { data, error } = await supabase.from("questions").select("topic");
 
-            if (error) {
-                console.error("Error fetching topics:", error);
-            } else {
+            if (!error) {
                 const uniqueTopics = Array.from(new Set(data.map(item => item.topic)));
                 setTopics(uniqueTopics);
-
-                // Initialize progress state for each topic
-                const progressState = {};
-                uniqueTopics.forEach((topic) => {
-                    progressState[topic] = { correctAnswers: 0, totalQuestions: 0 };
-                });
-                setTopicProgress(progressState);
+                setTopicProgress(prev => uniqueTopics.reduce((acc, topic) => ({
+                    ...acc,
+                    [topic]: prev[topic] || { correctAnswers: 0, totalQuestions: 0 }
+                }), {}));
             }
             setLoading(false);
         };
-
         fetchTopics();
     }, []);
 
-    // Fetch user's progress for the selected topic
     useEffect(() => {
-        if (selectedTopic) {
+        if (selectedTopic && userId) {
             const fetchProgress = async () => {
                 const { data, error } = await supabase
                     .from("user_progress")
@@ -53,122 +51,130 @@ const Quiz = () => {
                     .eq("topic", selectedTopic)
                     .single();
 
-                if (error) {
-                    console.error("Error fetching progress:", error);
-                } else {
-                    if (data) {
-                        setTopicProgress(prev => ({
-                            ...prev,
-                            [selectedTopic]: {
-                                correctAnswers: data.correct_answers,
-                                totalQuestions: data.total_questions
-                            }
-                        }));
-                    } else {
-                        // No progress found for the user in the selected topic, initialize it
-                        setTopicProgress(prev => ({
-                            ...prev,
-                            [selectedTopic]: {
-                                correctAnswers: 0,
-                                totalQuestions: 0
-                            }
-                        }));
-                    }
+                if (!error) {
+                    setTopicProgress(prev => ({
+                        ...prev,
+                        [selectedTopic]: {
+                            correctAnswers: data?.correct_answers || 0,
+                            totalQuestions: data?.total_questions || 0
+                        }
+                    }));
+                }
+
+                const savedIndex = localStorage.getItem(`currentQuestion_${selectedTopic}`);
+                if (savedIndex) {
+                    setCurrentQuestion(parseInt(savedIndex, 10));
                 }
             };
-
             fetchProgress();
         }
-    }, [selectedTopic]);
+    }, [selectedTopic, userId]);
 
-    // Fetch questions based on the selected topic
     useEffect(() => {
         if (selectedTopic) {
             const fetchQuestions = async () => {
+                setLoading(true);
                 const { data, error } = await supabase
                     .from("questions")
                     .select("*")
                     .eq("topic", selectedTopic);
 
-                if (error) {
-                    console.error("Error fetching questions:", error);
-                } else {
+                if (!error) {
                     setQuestions(data);
-                    // Update the total question count for the selected topic
                     setTopicProgress(prev => ({
                         ...prev,
                         [selectedTopic]: {
-                            ...prev[selectedTopic],
-                            totalQuestions: data.length
+                            correctAnswers: prev[selectedTopic]?.correctAnswers || 0,
+                            totalQuestions: data.length || 0
                         }
                     }));
                 }
+                setLoading(false);
             };
-
             fetchQuestions();
         }
     }, [selectedTopic]);
 
-    // Handle answer selection
     const handleAnswer = async (selectedOption) => {
+        if (!userId) return;
+
         const currentQuestionData = questions[currentQuestion];
+        const isCorrect = currentQuestionData.correct_option === selectedOption;
+        setAnswerStatus(isCorrect ? "correct" : "wrong");
 
-        // If the answer is correct
-        if (currentQuestionData.correct_option === selectedOption) {
-            setScore(prevScore => prevScore + 1);
-            setTopicProgress(prev => {
-                const updatedProgress = { ...prev };
-                updatedProgress[selectedTopic].correctAnswers += 1;
-                return updatedProgress;
-            });
+        if (isCorrect) {
+            setScore(prev => prev + 1);
+            setTopicProgress(prev => ({
+                ...prev,
+                [selectedTopic]: {
+                    ...prev[selectedTopic],
+                    correctAnswers: prev[selectedTopic].correctAnswers + 1
+                }
+            }));
 
-            // Update progress in the backend
+            const { data } = await supabase
+                .from("user_progress")
+                .select("correct_answers, total_questions")
+                .eq("user_id", userId)
+                .eq("topic", selectedTopic)
+                .single();
+
             await supabase
                 .from("user_progress")
                 .upsert({
                     user_id: userId,
                     topic: selectedTopic,
-                    correct_answers: topicProgress[selectedTopic].correctAnswers + 1,
-                    total_questions: topicProgress[selectedTopic].totalQuestions
+                    correct_answers: (data?.correct_answers || 0) + 1,
+                    total_questions: questions.length
                 });
         }
 
-        // Move to next question or complete the quiz
-        if (currentQuestion + 1 < questions.length) {
-            setCurrentQuestion(prev => prev + 1);
-        } else {
-            setQuizCompleted(true);
-            alert(`Quiz finished! Your score: ${score + 1}`);
-        }
+        setTimeout(() => {
+            setAnswerStatus(null);
+            if (currentQuestion + 1 < questions.length) {
+                setCurrentQuestion(prev => {
+                    const nextIndex = prev + 1;
+                    localStorage.setItem(`currentQuestion_${selectedTopic}`, nextIndex);
+                    return nextIndex;
+                });
+            } else {
+                setQuizCompleted(true);
+                alert(`Quiz finished! Your score: ${score + (isCorrect ? 1 : 0)}`);
+            }
+        }, 1000);
     };
 
-    // Calculate progress percentage
+    const handleBack = () => {
+        setSelectedTopic(null);
+        setCurrentQuestion(0);
+        setQuizCompleted(false);
+        setScore(0);
+        localStorage.removeItem(`currentQuestion_${selectedTopic}`);
+    };
+
+    const selectTopic = (topic) => {
+        setSelectedTopic(topic);
+        setCurrentQuestion(0);
+        setScore(0);
+        setQuizCompleted(false);
+    };
+
     const calculateProgress = (topic) => {
-        const { correctAnswers, totalQuestions } = topicProgress[topic];
-        return totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+        const progress = topicProgress[topic] || { correctAnswers: 0, totalQuestions: 1 };
+        return progress.totalQuestions > 0 ? (progress.correctAnswers / progress.totalQuestions) * 100 : 0;
     };
 
-    // Render the topic selection screen
     if (!selectedTopic) {
         return (
             <div className="quiz-container">
                 <h1 className="quiz-title">📚 Select a Topic</h1>
                 <div className="topic-grid">
                     {topics.map((topic) => (
-                        <div
-                            key={topic}
-                            className="topic-card"
-                            onClick={() => setSelectedTopic(topic)}
-                        >
+                        <div key={topic} className="topic-card" onClick={() => selectTopic(topic)}>
                             <h2>{topic}</h2>
                             <p>Questions: {topicProgress[topic]?.totalQuestions}</p>
                             <div className="progress-bar-background">
-                                <div
-                                    className="progress-bar"
-                                    style={{
-                                        width: `${calculateProgress(topic)}%`,
-                                    }}
-                                ></div>
+                                <div className="progress-bar" style={{ width: `${calculateProgress(topic)}%` }}></div>
                             </div>
                             <p>{Math.round(calculateProgress(topic))}%</p>
                         </div>
@@ -183,6 +189,7 @@ const Quiz = () => {
 
     return (
         <div className="quiz-container">
+            <button className="back-button" onClick={handleBack}>🔙 Back</button>
             <h1 className="quiz-title">📝 NCC Quiz</h1>
             {quizCompleted ? (
                 <div className="quiz-result">
@@ -193,11 +200,12 @@ const Quiz = () => {
                 <div className="quiz-card">
                     <h2 className="question-text">{questions[currentQuestion].question}</h2>
                     <div className="options-container">
-                        {["a", "b", "c", "d"].map((option) => (
+                        {['a', 'b', 'c', 'd'].map(option => (
                             <button
                                 key={option}
-                                className="option-button"
+                                className={`option-button ${answerStatus && (questions[currentQuestion].correct_option === option ? "correct" : "wrong")}`}
                                 onClick={() => handleAnswer(option)}
+                                disabled={answerStatus !== null}
                             >
                                 {questions[currentQuestion][`option_${option}`]}
                             </button>

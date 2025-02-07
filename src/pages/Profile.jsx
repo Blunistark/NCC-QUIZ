@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../utils/supabase";
 import Navbar from "../components/Navbar";
-import "../styles/Profile.css"; // Import the CSS file
+import "../styles/Profile.css";
 
 const Profile = () => {
     const [profile, setProfile] = useState(null);
@@ -9,24 +9,34 @@ const Profile = () => {
 
     useEffect(() => {
         const fetchProfile = async () => {
-            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            setLoading(true);
 
-            if (userError || !user) {
-                console.error("User not authenticated:", userError);
+            // Get current user session
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+            if (sessionError || !session?.user) {
+                console.error("User not authenticated:", sessionError);
+                setLoading(false);
                 return;
             }
 
+            const userId = session.user.id; // Extract user ID
+
+            console.log("Fetching profile for user ID:", userId); // Debugging log
+
+            // Fetch user details from 'users' table
             const { data, error } = await supabase
                 .from("users")
                 .select("*")
-                .eq("id", user.id)
-                .single();
+                .eq("id", userId)
+                .single(); // Ensure only one record is returned
 
             if (error) {
                 console.error("Profile fetch error:", error);
             } else {
-                setProfile(data);
+                setProfile(data); // Set user profile
             }
+
             setLoading(false);
         };
 

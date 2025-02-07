@@ -19,46 +19,58 @@ const AuthPage = () => {
 
   const handleAuth = async (e) => {
     e.preventDefault();
-    setError(""); // Clear any previous errors
-    setSuccessMessage(""); // Clear any previous success messages
+    setError("");
+    setSuccessMessage("");
 
     if (isSignUp) {
-      const { error: signUpError } = await supabase.auth.signUp({ email, password });
-      if (signUpError) {
-        setError(signUpError.message);
-      } else {
-        // Insert additional user details into the users table
-        const { data, error: insertError } = await supabase
-          .from("users")
-          .insert([
-            {
-              name,
-              email,
-              regimental_number: regimentalNumber,
-              school,
-              unit,
-              group,
-              directorate,
-            },
-          ]);
+        // Sign up the user
+        const { data, error: signUpError } = await supabase.auth.signUp({
+            email,
+            password
+        });
 
-        if (insertError) {
-          setError(insertError.message);
-        } else {
-          setSuccessMessage("Check your email for verification!");
-          // Optionally, redirect to a different page or keep the user on the same page
-          // navigate("/Home");
+        if (signUpError) {
+            setError(signUpError.message);
+            return;
         }
-      }
+
+        const user = data.user; // Get the newly created user
+
+        if (user) {
+            // Insert user details into `users` table with the same UUID as the auth user
+            const { error: insertError } = await supabase
+                .from("users")
+                .insert([
+                    {
+                        id: user.id, // Store the Auth user ID in `users`
+                        name,
+                        email,
+                        regimental_number: regimentalNumber,
+                        school,
+                        unit,
+                        group,
+                        directorate,
+                        score: 0
+                    }
+                ]);
+
+            if (insertError) {
+                setError(insertError.message);
+            } else {
+                setSuccessMessage("Check your email for verification!");
+            }
+        }
     } else {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (signInError) {
-        setError(signInError.message);
-      } else {
-        navigate("/Home"); // Redirect after successful login
-      }
+        // Log in the user
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (signInError) {
+            setError(signInError.message);
+        } else {
+            navigate("/Home"); // Redirect to Home after successful login
+        }
     }
-  };
+};
 
   return (
     <div className="auth-container">
