@@ -5,7 +5,7 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background: #1e1e1e; /* Dark background */
+    background: #1e1e1e;
     color: #fff;
     font-family: "Arial", sans-serif;
     padding: 20px;
@@ -16,40 +16,15 @@
     font-size: 2.5rem;
     font-weight: bold;
     margin-bottom: 20px;
-    color: #ffd700; /* NCC Gold */
+    color: #ffd700;
     text-align: center;
 }
 
-/* Topic Selection Grid */
-.topic-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
-    width: 100%;
-    max-width: 600px;
-}
-
-.topic-card {
-    background: #2a2a2a;
-    padding: 15px;
-    border-radius: 10px;
-    text-align: center;
-    cursor: pointer;
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-    border: 2px solid #ffd700;
-    transition: transform 0.2s, background 0.3s;
-}
-
-.topic-card:hover {
-    background: #ffd700;
-    color: #000;
-    transform: scale(1.05);
-}
-
-/* Quiz Question Section */
+/* Quiz Card - Flex Layout */
 .quiz-card {
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: space-between;
     background: #2a2a2a;
     padding: 20px;
@@ -62,40 +37,59 @@
     border-left: 5px solid #ffd700;
 }
 
-.question-text {
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-    flex-grow: 1;
+/* Question & Options Flexbox */
+.question-container {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
+    flex: 1; /* Allows it to take equal space */
+    width: 100%;
 }
 
-/* Answer Option Buttons */
+/* Question Text */
+.question-text {
+    font-size: 1.6rem;
+    text-align: center;
+    padding: 20px;
+    background: #333;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 750px;
+    box-shadow: 0px 4px 8px rgba(255, 215, 0, 0.2);
+}
+
+/* Options Container - Now More Spacious */
 .options-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
+    width: 100%;
+    max-width: 600px;
+    flex: 1; /* Allows options to take equal space */
+    justify-content: center;
 }
 
+/* Option Buttons - Now Bigger & More Clickable */
 .option-button {
     background: #444;
     color: white;
     border: none;
     padding: 15px;
-    font-size: 1.2rem;
-    border-radius: 8px;
+    font-size: 1.4rem;
+    border-radius: 10px;
     cursor: pointer;
     transition: background 0.3s, transform 0.1s;
+    width: 100%;
+    text-align: center;
 }
 
 .option-button:hover {
     background: #ffd700;
     color: #000;
-    transform: scale(1.02);
+    transform: scale(1.03);
 }
 
-/* Correct and Wrong Answer Effects */
+/* Correct & Wrong Answer Effects */
 .option-button.correct {
     background: #4caf50 !important; /* Green for correct */
 }
@@ -107,8 +101,8 @@
 /* Score Display */
 .score-text {
     font-size: 1.3rem;
-    margin-top: 10px;
     font-weight: bold;
+    margin-top: 10px;
 }
 
 /* Quiz Completion */
@@ -131,13 +125,6 @@
     font-size: 2rem;
     color: #ffd700;
     margin-bottom: 10px;
-}
-
-/* Loading Text */
-.loading-text {
-    font-size: 1.5rem;
-    color: #ccc;
-    text-align: center;
 }
 
 /* Back Button */
@@ -189,11 +176,12 @@
 
     .question-text {
         font-size: 1.5rem;
+        padding: 15px;
     }
 
     .option-button {
-        font-size: 1rem;
-        padding: 12px;
+        font-size: 1.2rem;
+        padding: 14px;
     }
 
     .quiz-result {
